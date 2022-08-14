@@ -8,8 +8,19 @@ def download_episode(url, filename):
 	"""
 	Function to download the audio files from Podcast episodes
 	"""
-	response = requests.get(url)
-	open(filename, "wb").write(response.content)
+	try:
+		#Download Podcast Episode
+		response = requests.get(url)
+	except requests.exceptions.RequestException as e:
+		print("Failed to download " + filename)
+		print(e)
+	else:
+		try:
+			#Save audio file locally for processing
+			with open(filename, "wb") as f:
+				f.write(response.content)
+		except:
+			print("Failed to save file")
 
 def podcast_processor(url, limit = -1):
 	"""
@@ -28,9 +39,11 @@ def podcast_processor(url, limit = -1):
 				root, ext = splitext(parsed.path)
 				filename = entry["episodeid"] + ext
 				download_episode(link["href"], filename)
-				if os.path.exists(filename):
-					print("Do Stuff Here")
-					os.remove(filename)
+		if os.path.exists(filename):
+			print("Do Stuff Here")
+
+			#Delete proccesed audio file
+			os.remove(filename)
 		if (limit != -1 and i >= limit) :
 			break
 
